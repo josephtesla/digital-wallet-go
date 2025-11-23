@@ -15,7 +15,7 @@ func InitLogger(logLevel string) *zap.Logger {
 		config = zap.NewDevelopmentConfig()
 	}
 
-	// Set log level
+	// Set minimum severity log level
 	switch logLevel {
 	case "debug":
 		config.Level = zap.NewAtomicLevelAt(zap.DebugLevel)

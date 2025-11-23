@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/josephtesla/digital-wallet-go/db"
@@ -25,7 +26,10 @@ func main() {
 
 	// Initialize logger
 	logger := infra.InitLogger(config.LogLevel)
+	defer logger.Sync()
 	logger.Info("Starting Digital Wallet API server")
+
+	appContext = context.Background()
 
 	// Initialize database
 	database, err := infra.InitDB(config.DatabaseURL)
@@ -63,7 +67,7 @@ func main() {
 	api.SetupRoutes(router, services, logger)
 
 	// Start server
-	port := config.LogLevel
+	port := config.Port
 	if port == "" {
 		port = "8080"
 	}

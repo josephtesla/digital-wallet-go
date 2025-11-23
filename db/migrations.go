@@ -19,8 +19,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// Migrate runs all database migrations using GORM's AutoMigrate.
-// This creates/updates all tables from the Go model structs.
+/*
+Migrate runs all database migrations using GORM's AutoMigrate.
+This creates/updates all tables from the Go model structs.
+*/
 func Migrate(db *gorm.DB, logger *zap.Logger) error {
 	logger.Info("Running database migrations...")
 

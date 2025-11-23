@@ -213,4 +213,3 @@ func (p *PaystackClient) InitiateTransfer(req *InitiateTransferRequest) (*Initia
 
 	return &transferResp, nil
 }
-
