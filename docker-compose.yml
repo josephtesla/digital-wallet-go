@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: digital-wallet-postgres
+    environment:
+      POSTGRES_DB: digital_wallet
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: digital-wallet-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: digital-wallet-api
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432/digital_wallet?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      PAYSTACK_SECRET_KEY: sk_test_your_secret_key_here
+      PAYSTACK_PUBLIC_KEY: pk_test_your_public_key_here
+      PORT: 8080
+      LOG_LEVEL: info
+      GIN_MODE: debug
+      JWT_SECRET: your_jwt_secret_key_here
+      ENVIRONMENT: development
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./.env:/root/.env
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
