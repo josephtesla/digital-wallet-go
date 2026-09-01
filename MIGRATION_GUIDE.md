@@ -1,14 +1,14 @@
 # Database Migration Guide
 
-## 🎯 Why No SQL Files?
+## Why No SQL Files?
 
 This project uses **GORM AutoMigrate**, which means:
-- ✅ Database schema is defined entirely in Go code (`internal/models/`)
-- ✅ Tables are auto-created/updated on application startup
-- ✅ No manual SQL files to maintain
-- ✅ Type-safe schema management
+- Database schema is defined entirely in Go code (`internal/models/`)
+- Tables are auto-created/updated on application startup
+- No manual SQL files to maintain
+- Type-safe schema management
 
-## 📝 How It Works
+## How It Works
 
 ### On Application Startup
 
@@ -47,7 +47,7 @@ CREATE TABLE wallets (
 CREATE INDEX idx_wallets_user_id ON wallets(user_id);
 ```
 
-## 🔧 How to Add a New Table
+## How to Add a New Table
 
 ### Step 1: Create the Model
 Add a new file in `internal/models/`:
@@ -96,9 +96,9 @@ make run
 make docker-up
 ```
 
-That's it! The table is created automatically.
+That's it. The table is created automatically.
 
-## 📊 GORM Tags Reference
+## GORM Tags Reference
 
 Common tags used in this project:
 
@@ -125,7 +125,7 @@ type Example struct {
 }
 ```
 
-## 🚀 Development Workflow
+## Development Workflow
 
 ### First Run
 ```bash
@@ -133,7 +133,7 @@ cp .env.example .env
 make docker-up
 make run
 ```
-→ All tables created automatically ✅
+-> All tables created automatically
 
 ### Add New Feature with DB Changes
 ```go
@@ -146,7 +146,7 @@ make run
 // 3. Restart
 make run
 ```
-→ New table appears automatically ✅
+-> New table appears automatically
 
 ### Modify Existing Model
 ```go
@@ -156,21 +156,21 @@ make run
 // 2. Restart
 make run
 ```
-→ Table schema updated automatically ✅
+-> Table schema updated automatically
 
-## ⚠️ Important Notes
+## Important Notes
 
 ### Safe Changes (Auto-applied)
-- ✅ Add new column
-- ✅ Add new index
-- ✅ Change default value
-- ✅ Add NOT NULL constraint to new columns
+- Add new column
+- Add new index
+- Change default value
+- Add NOT NULL constraint to new columns
 
 ### Dangerous Changes (Review Needed)
-- ❌ Remove column (data loss)
-- ❌ Rename column (data loss)
-- ❌ Add NOT NULL to existing nullable column (migration needed)
-- ❌ Change column type (might fail)
+- Remove column (data loss)
+- Rename column (data loss)
+- Add NOT NULL to existing nullable column (migration needed)
+- Change column type (might fail)
 
 For dangerous changes:
 1. Write raw SQL migration script
@@ -183,13 +183,13 @@ make test-integration
 ```
 Uses testcontainers - fresh DB each time, so migrations tested automatically.
 
-## 📚 Resources
+## Resources
 
 - [GORM Migration Docs](https://gorm.io/docs/migration.html)
 - [GORM Tags Reference](https://gorm.io/docs/models.html)
 - [PostgreSQL Types](https://www.postgresql.org/docs/current/datatype.html)
 
-## 🔄 Resetting Database (Dev Only)
+## Resetting Database (Dev Only)
 
 ```bash
 make migrate-down
@@ -203,4 +203,4 @@ make run
 
 ---
 
-**Summary**: No more SQL files! Just update Go models, restart, and GORM handles the rest. 🚀
+**Summary**: No more SQL files. Just update Go models, restart, and GORM handles the rest.

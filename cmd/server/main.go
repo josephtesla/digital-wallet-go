@@ -29,7 +29,7 @@ func main() {
 	defer logger.Sync()
 	logger.Info("Starting Digital Wallet API server")
 
-	appContext = context.Background()
+	appContext := context.Background()
 
 	// Initialize database
 	database, err := infra.InitDB(config.DatabaseURL)

@@ -1,10 +1,8 @@
 # Digital Wallet Backend
 
-A production-ready digital wallet backend built with Go, Gin, PostgreSQL, Redis, and Paystack integration. Supports deposits, transfers, withdrawals, and double-entry bookkeeping.
+Digital wallet backend built with Go, Gin, PostgreSQL, Redis, and Paystack integration. Supports deposits, transfers, withdrawals, and double-entry bookkeeping.
 
-## 🏗️ Architecture
-
-The project follows a clean, layered architecture:
+## Architecture
 
 ```
 cmd/server/          # Entry point
@@ -19,7 +17,7 @@ db/                  # Database (migrations auto-generated)
 test/integration/    # Integration tests
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -30,22 +28,25 @@ test/integration/    # Integration tests
 
 ### Setup
 
-1. **Clone and setup environment:**
+1. Clone and setup environment:
+
    ```bash
    cp .env.example .env
    ```
 
-2. **Start services:**
+2. Start services:
+
    ```bash
    make docker-up
    ```
 
-3. **Run the application:**
+3. Run the application:
+
    ```bash
    make run
    ```
 
-The server will start on `http://localhost:8080`
+The server starts on `http://localhost:8080`.
 
 ### Available Commands
 
@@ -61,94 +62,98 @@ make fmt              # Format code
 make lint             # Run linter
 ```
 
-## 🗄️ Database Migrations
+## Database Migrations
 
-**Migrations are automatically handled by GORM!** 
+Migrations are handled by GORM. On startup the application:
 
-When the application starts, it automatically:
 1. Creates all tables from Go models using `AutoMigrate`
 2. Seeds initial system accounts (settlement, revenue, pending_withdrawal)
 
-**No manual SQL files needed.** All schema is defined in `/internal/models/` and auto-generated on startup.
+All schema is defined in `/internal/models/` and generated on startup.
 
 To add new models:
+
 1. Create the model struct in `internal/models/`
 2. Add it to the `Migrate()` function in `db/migrations.go`
 3. Restart the application
 
-## 💰 Data Models
+## Data Models
 
 ### Core Entities
 
 #### User
-```go
+
 - ID, Email, Password
 - Links to one Wallet
 - Can have multiple BankAccounts
-```
 
 #### Wallet
-```go
+
 - ID, UserID, Currency (NGN)
 - Balance (in kobo - smallest unit)
 - Status (active, frozen, closed)
-```
 
 #### Payment
-```go
+
 - Tracks deposits & withdrawals via Paystack
 - PaystackRef for reconciliation
 - Status: pending, success, failed
-```
 
 #### Ledger (Double-Entry Bookkeeping)
-```go
+
 LedgerTransaction
+
 - ID, Reference, Amount, Type, Status
 
 LedgerEntry (always in pairs - debit/credit)
+
 - ID, TransactionID, AccountID, Amount
-```
 
 #### BankAccount
-```go
+
 - Links user to bank details
 - RecipientCode from Paystack
-```
 
 #### SystemAccount
-```go
+
 - Internal accounts: settlement, revenue, pending_withdrawal
 - For ledger balancing
-```
 
-## 🔄 Key Features
+## Key Features
 
 ### 1. Double-Entry Bookkeeping
+
 Every transaction creates balanced entries:
-- Transfer: Wallet1 -50 → Wallet2 +50
-- Deposit: Wallet +100 ← Settlement -100
-- Withdrawal: Wallet -100 → Bank +100
+
+- Transfer: Wallet1 -50 -> Wallet2 +50
+- Deposit: Wallet +100 <- Settlement -100
+- Withdrawal: Wallet -100 -> Bank +100
 
 ### 2. Idempotency
+
 Prevents duplicate operations via:
+
 - Idempotency keys in request headers
 - Cached responses stored in DB
-- Perfect for webhook replays
+- Handles webhook replays
 
 ### 3. Atomic Transfers
+
 Uses Redis distributed locks to ensure:
+
 - No race conditions
 - Consistent ledger entries
 - Wallet balance always reflects ledger
 
 ### 4. Paystack Integration
-- **Deposits**: Initialize → Paystack checkout → Webhook verification
-- **Withdrawals**: Create recipient → Initiate transfer → Webhook confirmation
 
-## 📡 API Endpoints
+- Deposits: Initialize -> Paystack checkout -> Webhook verification
+- Withdrawals: Create recipient -> Initiate transfer -> Webhook confirmation
+
+## API Endpoints
 
 ### Wallets
+
 ```
 POST   /api/v1/wallets              # Create wallet
 GET    /api/v1/wallets/:id          # Get wallet details
@@ -156,29 +161,33 @@ GET    /api/v1/wallets/:id/balance  # Get balance
 ```
 
 ### Transfers
+
 ```
 POST   /api/v1/transfers            # Transfer between wallets
 GET    /api/v1/transfers/:walletId/history
 ```
 
 ### Deposits
+
 ```
 POST   /api/v1/deposits/init        # Initialize Paystack deposit
 GET    /api/v1/deposits/verify/:reference
 ```
 
 ### Withdrawals
+
 ```
 POST   /api/v1/withdrawals/init     # Initialize withdrawal
 GET    /api/v1/withdrawals/:walletId/history
 ```
 
 ### Webhooks
+
 ```
 POST   /api/v1/webhooks/paystack    # Paystack event webhooks
 ```
 
-## 🧪 Testing
+## Testing
 
 Integration tests use testcontainers for real PostgreSQL & Redis:
 
@@ -187,32 +196,35 @@ make test-integration
 ```
 
 Tests include:
-- ✅ Wallet creation & balance retrieval
-- ✅ Transfer atomicity & balance consistency
-- ✅ Deposit initialization & Paystack webhook
-- ✅ Withdrawal flow & payout completion
-- ✅ Insufficient funds scenarios
 
-## 🔐 Security Features
+- Wallet creation & balance retrieval
+- Transfer atomicity & balance consistency
+- Deposit initialization & Paystack webhook
+- Withdrawal flow & payout completion
+- Insufficient funds scenarios
 
-- **JWT Authentication** (middleware ready)
-- **Idempotency** for safe retries
-- **Distributed Locking** for atomic operations
-- **Structured Logging** for audit trails
-- **Error Handling** with domain-specific errors
+## Security Features
 
-## 📝 Environment Variables
+- JWT Authentication (middleware ready)
+- Idempotency for safe retries
+- Distributed Locking for atomic operations
+- Structured Logging for audit trails
+- Error Handling with domain-specific errors
+
+## Environment Variables
 
 See `.env.example` for all required variables:
+
 - `DATABASE_URL` - PostgreSQL connection
 - `REDIS_URL` - Redis connection
 - `PAYSTACK_SECRET_KEY` - Paystack API key
 - `LOG_LEVEL` - debug, info, warn, error
 - `PORT` - Server port (default 8080)
 
-## 🐳 Docker Support
+## Docker Support
 
 ### Development
+
 ```bash
 docker-compose up -d        # Start all services
 docker-compose down         # Stop all services
@@ -220,13 +232,14 @@ docker-compose logs -f api  # View logs
 ```
 
 ### Testing
+
 ```bash
 docker-compose -f docker-compose.test.yml up -d
 # Run tests
 docker-compose -f docker-compose.test.yml down
 ```
 
-## 📚 Project Structure Details
+## Project Structure
 
 ```
 internal/
@@ -279,15 +292,15 @@ db/
 └── migrations.go                    # AutoMigrate + Seed functions
 ```
 
-## 🎯 Next Steps
+## Next Steps
 
-1. **Implement JWT Auth**: Uncomment auth middleware in router
-2. **Add Rate Limiting**: Implement Gin rate limiter
-3. **Add Audit Logs**: Log all financial operations
-4. **Implement Health Checks**: DB & Redis health endpoints
-5. **Add Metrics**: Prometheus metrics for monitoring
-6. **Implement Transactions UI**: Frontend for wallet operations
+1. Implement JWT Auth: Uncomment auth middleware in router
+2. Add Rate Limiting: Implement Gin rate limiter
+3. Add Audit Logs: Log all financial operations
+4. Implement Health Checks: DB & Redis health endpoints
+5. Add Metrics: Prometheus metrics for monitoring
+6. Implement Transactions UI: Frontend for wallet operations
 
-## 📄 License
+## License
 
 MIT
